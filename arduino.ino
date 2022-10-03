@@ -135,6 +135,9 @@ void loop() {
     }
 
     if(needToTurn) {
-        
+        stop();
+        move_left();
+        delay(1000);
+        stop();
     }
 }
