@@ -112,7 +112,7 @@ void setup() {
 
 void loop() {
     move_forward();
-    delay(1000);
+    delay(500);
     stop();
 
     SensorInfo initialInfos = getSensorInfos();
@@ -137,7 +137,17 @@ void loop() {
     if(needToTurn) {
         stop();
         move_left();
-        delay(1000);
+        delay(500);
         stop();
+    } else {
+        rotateSensor(180);
+        delay(500);
+        stop();
+
+        if(getSensorInfos().distance > 2) {
+            move_right();
+            delay(1000);
+            stop();
+        }
     }
 }
