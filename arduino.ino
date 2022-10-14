@@ -1,13 +1,22 @@
 #include <Servo.h>
 
-#define echoPin 2
-#define trigPin 3
+#define MOTOR1_PWM 3
+#define MOTOR2_PWM 11
+#define MOTOR3_PWM 5
+#define MOTOR4_PWM 6
 
-#define MOTOR_A_DIRECTION 12
-#define MOTOR_B_DIRECTION 13
+#define MOTOR1_DIRECTION 4
+#define MOTOR2_DIRECTION 12
+#define MOTOR3_DIRECTION 8 
+#define MOTOR4_DIRECTION 7
 
-#define MOTOR_A_PWM 3
-#define MOTOR_B_PWM 11
+#define BT_TXD 10
+#define BT_RXD 11
+
+#define ECHO_PIN 2
+#define TRIG_PIN 9
+
+#define SENSOR_MOTOR 13
 
 #define ROBOT_SPEED 1
 
@@ -16,18 +25,18 @@ Servo sensor_servo;
 struct SensorInfo {
     long duration;
     int distance;
-}
+};
 
 SensorInfo getSensorInfos() {
     // Clears the trigPin condition
-    digitalWrite(trigPin, LOW);
+    digitalWrite(TRIG_PIN, LOW);
     delayMicroseconds(2);
     // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
-    digitalWrite(trigPin, HIGH);
+    digitalWrite(TRIG_PIN, HIGH);
     delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
+    digitalWrite(TRIG_PIN, LOW);
     // Reads the echoPin, returns the sound wave travel time in microseconds
-    long duration = pulseIn(echoPin, HIGH);
+    long duration = pulseIn(ECHO_PIN, HIGH);
     // Calculating the distance
     int distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
     // Displays the distance on the Serial Monitor
@@ -35,7 +44,7 @@ SensorInfo getSensorInfos() {
     return {
         duration,
         distance
-    }
+    };
 }
 
 void rotateSensor(int angle) {
@@ -47,14 +56,14 @@ void setRightSpeed(int speed)
     if (speed < 0)
     {
         speed = -speed;
-        digitalWrite(MOTOR_B_DIRECTION, LOW);
+        digitalWrite(MOTOR2_DIRECTION, LOW);
     }
     else
     {
-        digitalWrite(MOTOR_B_DIRECTION, HIGH);
+        digitalWrite(MOTOR2_DIRECTION, HIGH);
     }
 
-    analogWrite(MOTOR_B_PWM, speed);
+    analogWrite(MOTOR2_PWM, speed);
 }
 
 void setLeftSpeed(int speed)
@@ -62,14 +71,14 @@ void setLeftSpeed(int speed)
     if (speed < 0)
     {
         speed = -speed;
-        digitalWrite(MOTOR_A_DIRECTION, LOW);
+        digitalWrite(MOTOR1_DIRECTION, LOW);
     }
     else
     {
-        digitalWrite(MOTOR_A_DIRECTION, HIGH);
+        digitalWrite(MOTOR1_DIRECTION, HIGH);
     }
 
-    analogWrite(MOTOR_A_PWM, speed);
+    analogWrite(MOTOR1_PWM, speed);
 }
 
 void stop()
@@ -103,17 +112,24 @@ void move_right()
 }
 
 void setup() {
-    pinMode(trigPin, OUTPUT);
-    pinMode(echoPin, INPUT);
+    pinMode(TRIG_PIN, OUTPUT);
+    pinMode(ECHO_PIN, INPUT);
 
-    pinMode(MOTOR_A_PWM, OUTPUT);
-    pinMode(MOTOR_B_PWM, OUTPUT);
+    pinMode(MOTOR1_PWM, OUTPUT);
+    pinMode(MOTOR2_PWM, OUTPUT);
+
+    sensor_servo.attach(SENSOR_MOTOR);
+
+    Serial.begin(9600);
 }
 
 void loop() {
+    Serial.println("New loop cycle");
     move_forward();
     delay(500);
     stop();
+
+    return;
 
     SensorInfo initialInfos = getSensorInfos();
     rotateSensor(-90);
@@ -128,7 +144,7 @@ void loop() {
     while(elapsedTime < neededTime) {
         infos = getSensorInfos();
         elapsedTime = millis();
-        if(infos.distance < 2) {
+        if(infos.distance <= 2) {
             needToTurn = true;
             break;
         }
