@@ -1,4 +1,5 @@
 #include <Servo.h>
+#include <HCSR04.h>
 
 #define MOTOR1_PWM 3
 #define MOTOR2_PWM 11
@@ -21,6 +22,7 @@
 #define ROBOT_SPEED 1
 
 Servo sensor_servo;
+UltraSonicDistanceSensor distanceSensor(TRIG_PIN, ECHO_PIN);
 
 struct SensorInfo {
     long duration;
@@ -28,7 +30,7 @@ struct SensorInfo {
 };
 
 SensorInfo getSensorInfos() {
-    // Clears the trigPin condition
+   /* // Clears the trigPin condition
     digitalWrite(TRIG_PIN, LOW);
     delayMicroseconds(2);
     // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
@@ -40,6 +42,9 @@ SensorInfo getSensorInfos() {
     // Calculating the distance
     int distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
     // Displays the distance on the Serial Monitor
+*/
+  int distance = distanceSensor.measureDistanceCm();
+  long duration = 0;
 
     return {
         duration,
@@ -112,11 +117,11 @@ void move_right()
 }
 
 void setup() {
-    pinMode(TRIG_PIN, OUTPUT);
-    pinMode(ECHO_PIN, INPUT);
 
     pinMode(MOTOR1_PWM, OUTPUT);
     pinMode(MOTOR2_PWM, OUTPUT);
+    pinMode(MOTOR1_DIRECTION, OUTPUT);
+    pinMode(MOTOR2_DIRECTION, OUTPUT);
 
     sensor_servo.attach(SENSOR_MOTOR);
 
@@ -124,13 +129,6 @@ void setup() {
 }
 
 void loop() {
-    Serial.println("New loop cycle");
-    move_forward();
-    delay(500);
-    stop();
-
-    return;
-
     SensorInfo initialInfos = getSensorInfos();
     rotateSensor(-90);
     
@@ -140,6 +138,7 @@ void loop() {
     int elapsedTime = 0;
 
     bool needToTurn = false;
+    Serial.println(initialInfos.distance);
 
     while(elapsedTime < neededTime) {
         infos = getSensorInfos();
