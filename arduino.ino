@@ -1,5 +1,6 @@
 #include <Servo.h>
 #include <HCSR04.h>
+#include <SoftwareSerial.h>
 
 #define MOTOR1_PWM 3
 #define MOTOR2_PWM 11
@@ -21,8 +22,11 @@
 
 #define ROBOT_SPEED 1
 
+SoftwareSerial BT(BT_RXD, BT_TXD);
+
 Servo sensor_servo;
 UltraSonicDistanceSensor distanceSensor(TRIG_PIN, ECHO_PIN);
+bool started = false;
 
 struct SensorInfo {
     long duration;
@@ -126,9 +130,22 @@ void setup() {
     sensor_servo.attach(SENSOR_MOTOR);
 
     Serial.begin(9600);
+    BT.begin(9600);
 }
 
-void loop() {  
+void loop() {
+    if(BT.available()) {
+        char c = BT.read();
+
+        if(c == '1') {
+            started = true;
+        } else if(c == '0') {
+            started = false;
+        }
+    }
+
+
+    if(!started) return;
     SensorInfo initialInfos = getSensorInfos();
     rotateSensor(-90);
     
