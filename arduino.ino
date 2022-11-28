@@ -128,21 +128,31 @@ void setup() {
     Serial.begin(9600);
 }
 
-void loop() {
+void loop() {  
     SensorInfo initialInfos = getSensorInfos();
     rotateSensor(-90);
     
     move_forward();
     SensorInfo infos = getSensorInfos();
-    int neededTime = (initialInfos.distance / ROBOT_SPEED) / 1000;
-    int elapsedTime = 0;
+    Serial.print("Distance: ");
+    Serial.println(initialInfos.distance);
+    unsigned long neededTime = (initialInfos.distance) * 1000;
+
+    Serial.print("Needed time: ");
+    Serial.println(neededTime);
+    unsigned long initialTime = millis();
+    unsigned long elapsedTime = 0;
+
+    Serial.print("Initial time: ");
+    Serial.println(initialTime);
 
     bool needToTurn = false;
-    Serial.println(initialInfos.distance);
 
     while(elapsedTime < neededTime) {
         infos = getSensorInfos();
-        elapsedTime = millis();
+        elapsedTime = millis() - initialTime;
+        Serial.print("Elapsed time: ");
+        Serial.println(elapsedTime);
         if(infos.distance <= 2) {
             needToTurn = true;
             break;
