@@ -12,8 +12,8 @@
 #define MOTOR3_DIRECTION 8 
 #define MOTOR4_DIRECTION 7
 
-#define BT_TXD 10
-#define BT_RXD 11
+#define BT_TXD 0
+#define BT_RXD 1
 
 #define ECHO_PIN 2
 #define TRIG_PIN 9
@@ -146,10 +146,12 @@ void loop() {
 
 
     if(!started) return;
+    rotateSensor(0);
     SensorInfo initialInfos = getSensorInfos();
     rotateSensor(-90);
     
     move_forward();
+
     SensorInfo infos = getSensorInfos();
     Serial.print("Distance: ");
     Serial.println(initialInfos.distance);
