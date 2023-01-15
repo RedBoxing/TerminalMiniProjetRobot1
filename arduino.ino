@@ -12,21 +12,15 @@
 #define MOTOR3_DIRECTION 8 
 #define MOTOR4_DIRECTION 7
 
-#define BT_TXD 0
-#define BT_RXD 1
-
-#define ECHO_PIN 2
-#define TRIG_PIN 9
+#define ECHO_PIN 9
+#define TRIG_PIN 2
 
 #define SENSOR_MOTOR 13
 
 #define ROBOT_SPEED 1
 
-SoftwareSerial BT(BT_RXD, BT_TXD);
-
 Servo sensor_servo;
 UltraSonicDistanceSensor distanceSensor(TRIG_PIN, ECHO_PIN);
-bool started = false;
 
 struct SensorInfo {
     long duration;
@@ -65,11 +59,11 @@ void setRightSpeed(int speed)
     if (speed < 0)
     {
         speed = -speed;
-        digitalWrite(MOTOR2_DIRECTION, LOW);
+        digitalWrite(MOTOR2_DIRECTION, HIGH);
     }
     else
     {
-        digitalWrite(MOTOR2_DIRECTION, HIGH);
+        digitalWrite(MOTOR2_DIRECTION, LOW);
     }
 
     analogWrite(MOTOR2_PWM, speed);
@@ -80,11 +74,11 @@ void setLeftSpeed(int speed)
     if (speed < 0)
     {
         speed = -speed;
-        digitalWrite(MOTOR1_DIRECTION, LOW);
+        digitalWrite(MOTOR1_DIRECTION, HIGH);
     }
     else
     {
-        digitalWrite(MOTOR1_DIRECTION, HIGH);
+        digitalWrite(MOTOR1_DIRECTION, LOW);
     }
 
     analogWrite(MOTOR1_PWM, speed);
@@ -101,7 +95,6 @@ void move_forward()
     setLeftSpeed(100);
     setRightSpeed(100);
 }
-
 void move_backward()
 {
     setLeftSpeed(-100);
@@ -130,26 +123,15 @@ void setup() {
     sensor_servo.attach(SENSOR_MOTOR);
 
     Serial.begin(9600);
-    BT.begin(9600);
+    stop();
+    rotateSensor(0);
 }
 
 void loop() {
-    if(BT.available()) {
-        char c = BT.read();
-
-        if(c == '1') {
-            started = true;
-        } else if(c == '0') {
-            started = false;
-        }
-    }
-
-
-    if(!started) return;
     rotateSensor(0);
     SensorInfo initialInfos = getSensorInfos();
-    rotateSensor(-90);
-    
+    rotateSensor(-45);
+
     move_forward();
 
     SensorInfo infos = getSensorInfos();
@@ -184,7 +166,7 @@ void loop() {
         delay(500);
         stop();
     } else {
-        rotateSensor(180);
+        rotateSensor(0);
         delay(500);
         stop();
 
